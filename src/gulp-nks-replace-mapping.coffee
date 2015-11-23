@@ -15,10 +15,11 @@ $ =
  chunkVer: 1
  formType: 'NIKS'
 
-module.exports = (opts, data) ->
+module.exports = (data, opts) ->
+  opts = opts or {}
   opts = _.defaults opts,
-    mapping_src: 'NKSF'    # 'NKSF' or 'JSON' or 'OBJECT'
-    
+    type: 'NKSF'    # 'NKSF' or 'JSON' or 'OBJECT'
+
   through.obj (file, enc, cb) ->
     replaced = off
     replace = (err, src) =>
@@ -79,7 +80,7 @@ _deserializeMapping = (file) ->
 # create new NICA chunk
 _createMappingChunk = (opts, src) ->
   switch
-    when opts.mapping_src is 'NKSF'
+    when opts.type is 'NKSF'
       chunk = undefined
       reader(src, $.formType).readSync (id, data) ->
         assert.ok (id is $.chunkId), "Unexpected chunk id. id:#{id}"
@@ -90,7 +91,7 @@ _createMappingChunk = (opts, src) ->
       , [$.chunkId]
       assert.ok chunk, "#{$.chunkId} chunk is not contained in file. file:#{src}"
       chunk
-    when opts.mapping_src is 'JSON'
+    when opts.type is 'JSON'
       obj = JSON.parse fs.readFileSync src, 'utf8'
       # TODO: need validation here
       # chunk format version
@@ -98,7 +99,7 @@ _createMappingChunk = (opts, src) ->
       buffer.writeUInt32LE $.chunkVer
       # seriaize metadata to buffer
       Buffer.concat [buffer, msgpack.encode obj]
-    when opts.mapping_src is 'OBJECT'
+    when opts.type is 'OBJECT'
       # TODO: need validation here
       # chunk format version
       buffer = new Buffer 4
@@ -106,7 +107,7 @@ _createMappingChunk = (opts, src) ->
       # seriaize metadata to buffer
       Buffer.concat [buffer, msgpack.encode src]
     else
-      assert.ok false, "Unknown option mapping_src value. mapping_src: #{opts.mapping_src}"
+      assert.ok false, "Unknown option type value. type: #{opts.mapping_src}"
 
 #
 # replace NICA chunk

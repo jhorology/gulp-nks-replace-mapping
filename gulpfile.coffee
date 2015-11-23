@@ -65,7 +65,7 @@ gulp.task 'test', [
 gulp.task 'print-sample-mapping', ['default'], ->
   replace = require './'
   gulp.src ["test/**/*.nksf"]
-    .pipe replace undefined, (file, mapping) ->
+    .pipe replace (file, mapping) ->
       console.info beautify (JSON.stringify mapping), indent_size: 2
       undefined
 
@@ -83,7 +83,7 @@ gulp.task 'extract-sample-mapping', ['default'], ->
 gulp.task 'test-nksf-1', ['default'], ->
   replace = require './'
   gulp.src ["test/**/*.nksf"]
-    .pipe replace mapping_src: 'NKSF', 'test/sample.nksf'
+    .pipe replace 'test/sample.nksf'
     .pipe rename suffix: '_nksf-1'
     .pipe gulp.dest 'test_out'
 
@@ -91,7 +91,7 @@ gulp.task 'test-nksf-1', ['default'], ->
 gulp.task 'test-nksf-2', ['default'], ->
   replace = require './'
   gulp.src ["test/**/*.nksf"]
-    .pipe replace mapping_src: 'NKSF', (file, mapping) ->
+    .pipe replace (file, mapping) ->
       'test/sample.nksf'
     .pipe rename suffix: '_nksf-2'
     .pipe gulp.dest 'test_out'
@@ -100,7 +100,7 @@ gulp.task 'test-nksf-2', ['default'], ->
 gulp.task 'test-nksf-3', ['default'], ->
   replace = require './'
   gulp.src ["test/**/*.nksf"]
-    .pipe replace mapping_src: 'NKSF', (file, mapping, done) ->
+    .pipe replace (file, mapping, done) ->
       setTimeout ->
         done undefined, 'test/sample.nksf'
       , 1000
@@ -111,7 +111,8 @@ gulp.task 'test-nksf-3', ['default'], ->
 gulp.task 'test-json-1', ['extract-sample-mapping'], ->
   replace = require './'
   gulp.src ["test/**/*.nksf"]
-    .pipe replace mapping_src: 'JSON', 'test_out/sample.json'
+    .pipe replace 'test_out/sample.json'
+    , type: 'JSON'
     .pipe rename suffix: '_json-1'
     .pipe gulp.dest 'test_out'
 
@@ -119,8 +120,9 @@ gulp.task 'test-json-1', ['extract-sample-mapping'], ->
 gulp.task 'test-json-2', ['extract-sample-mapping'], ->
   replace = require './'
   gulp.src ["test/**/*.nksf"]
-    .pipe replace mapping_src: 'JSON', (file, mapping) ->
+    .pipe replace (file, mapping) ->
       'test_out/sample.json'
+    , type: 'JSON'
     .pipe rename suffix: '_json-2'
     .pipe gulp.dest 'test_out'
 
@@ -128,10 +130,11 @@ gulp.task 'test-json-2', ['extract-sample-mapping'], ->
 gulp.task 'test-json-3', ['extract-sample-mapping'], ->
   replace = require './'
   gulp.src ["test/**/*.nksf"]
-    .pipe replace mapping_src: 'JSON', (file, mapping, done) ->
+    .pipe replace (file, mapping, done) ->
       setTimeout ->
         done undefined, 'test_out/sample.json'
       , 1000
+    , type: 'JSON'
     .pipe rename suffix: '_json-3'
     .pipe gulp.dest 'test_out'
 
@@ -139,7 +142,8 @@ gulp.task 'test-json-3', ['extract-sample-mapping'], ->
 gulp.task 'test-object-1', ['extract-sample-mapping'], ->
   replace = require './'
   gulp.src ["test/**/*.nksf"]
-    .pipe replace mapping_src: 'OBJECT', (JSON.parse fs.readFileSync 'test_out/sample.json', 'utf8')
+    .pipe replace (JSON.parse fs.readFileSync 'test_out/sample.json', 'utf8')
+    , type: 'OBJECT'
     .pipe rename suffix: '_object-1'
     .pipe gulp.dest 'test_out'
 
@@ -147,8 +151,9 @@ gulp.task 'test-object-1', ['extract-sample-mapping'], ->
 gulp.task 'test-object-2', ['extract-sample-mapping'], ->
   replace = require './'
   gulp.src ["test/**/*.nksf"]
-    .pipe replace mapping_src: 'OBJECT', (file, mapping) ->
+    .pipe replace (file, mapping) ->
       JSON.parse fs.readFileSync 'test_out/sample.json', 'utf8'
+    , type: 'OBJECT'
     .pipe rename suffix: '_object-2'
     .pipe gulp.dest 'test_out'
 
@@ -156,10 +161,11 @@ gulp.task 'test-object-2', ['extract-sample-mapping'], ->
 gulp.task 'test-object-3', ['extract-sample-mapping'], ->
   replace = require './'
   gulp.src ["test/**/*.nksf"]
-    .pipe replace mapping_src: 'OBJECT', (file, mapping, done) ->
+    .pipe replace (file, mapping, done) ->
       setTimeout ->
         done undefined, (JSON.parse fs.readFileSync 'test_out/sample.json', 'utf8')
       , 1000
+    , type: 'OBJECT'
     .pipe rename suffix: '_object-3'
     .pipe gulp.dest 'test_out'
 

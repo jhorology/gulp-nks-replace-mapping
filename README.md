@@ -15,7 +15,7 @@ replace = require 'gulp-nks-replace-mapping'
 
 gulp.task 'dist', ->
   gulp.src ['src/Spire/**/*.nksf']
-    .pipe replace mapping_src: 'NKSF', 'Spire template.nksf'
+    .pipe replace 'Spire template.nksf'
     .pipe gulp.dest 'dist/Spire'
 ```
 
@@ -25,7 +25,7 @@ replace = require 'gulp-nks-replace-mapping'
 
 gulp.task 'dist', ->
   gulp.src ['src/AnalogLab/**/*.nksf']
-    .pipe replace mapping_src: 'OBJECT',
+    .pipe replace
       ni8: [
         [
           {
@@ -52,6 +52,7 @@ gulp.task 'dist', ->
           }
         ]
       ]
+    , type: 'OBJECT'
     .pipe gulp.dest 'dist/AnalogLab'
 ```
 
@@ -61,8 +62,9 @@ replace = require 'gulp-nks-replace-mapping'
 
 gulp.task 'dist', ->
   gulp.src ['src/AnalogLab/presets/**/*.nksf']
-    .pipe replace mapping_src:'JSON', (file, mapping) ->
+    .pipe replace (file, mapping) ->
       "src/AnalogLab/mappings/#{file.relative[..-5]}json"
+    , type: 'JSON'
     .pipe gulp.dest 'dist/AnalogLab'
 ```
 
@@ -73,18 +75,19 @@ beautify = require 'js-beautify'
 
 gulp.task 'print', ->
   gulp.src ['src/**/*.nksf']
-    .pipe replace undefined, (file, mapping) ->
+    .pipe replace (file, mapping) ->
       console.info beautify (JSON.stringify mapping), indent_size: 2
       undefined
 ```
 ## API
 
-### replace(options, data)
+### replace(data [,options])
 
-#### options
+#### options [optional]
 Type: `Object`
+Defalut: {type: 'NKSF'}
 
-##### options.mapping_src [optional]
+##### options.type [optional]
 Type: `String`, Default: 'NKSF'
 
 ###### 'NKSF'
@@ -97,7 +100,7 @@ Type: `String`, Default: 'NKSF'
 #### data
   Type: `String` or `Object` or `function(file, mapping [,callback])`
 
-  The mapping source file path or mapping object or function.
+  The replacement source file path or mapping object or function.
 
 
 #### function (file, mapping [,callbak])
