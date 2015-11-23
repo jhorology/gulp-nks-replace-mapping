@@ -1,0 +1,8 @@
+.DS_Store
+*~
+*.log
+test_out/
+target/
+build/
+components/
+node_modules/
