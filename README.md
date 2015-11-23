@@ -60,7 +60,7 @@ per preset mapping.
 replace = require 'gulp-nks-replace-mapping'
 
 gulp.task 'dist', ->
-  gulp.src ['src/AnalogLab/presets/**/*.nksf'], read: true
+  gulp.src ['src/AnalogLab/presets/**/*.nksf']
     .pipe replace mapping_src:'JSON', (file, mapping) ->
       "src/AnalogLab/mappings/#{file.relative[..-5]}json"
     .pipe gulp.dest 'dist/AnalogLab'
@@ -72,7 +72,7 @@ replace  = require 'gulp-nks-replace-mapping'
 beautify = require 'js-beautify'
 
 gulp.task 'print', ->
-  gulp.src ['src/**/*.nksf'], read: true
+  gulp.src ['src/**/*.nksf']
     .pipe replace undefined, (file, mapping) ->
       console.info beautify (JSON.stringify mapping), indent_size: 2
       undefined
