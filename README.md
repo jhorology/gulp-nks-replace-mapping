@@ -68,7 +68,7 @@ replace  = require 'gulp-nks-replace-mapping'
 beautify = require 'js-beautify'
 
 gulp.task 'print', ->
-  gulp.src ['src/AnalogLab/presets/**/*.nksf'], read: true
+  gulp.src ['src/**/*.nksf'], read: true
     .pipe replace undefined, (file, mapping) ->
       console.info beautify (JSON.stringify mapping), indent_size: 2
       undefined
