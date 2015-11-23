@@ -33,7 +33,7 @@ gulp.task 'dist', ->
             id: 0
             name: "Level"
             section: "Master"
-            vflag": false
+            vflag: false
           }
           {
             autoname: false
