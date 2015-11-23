@@ -26,27 +26,29 @@ replace = require 'gulp-nks-replace-mapping'
 gulp.task 'dist', ->
   gulp.src ['src/AnalogLab/**/*.nksf']
     .pipe replace mapping_src: 'OBJECT',
-      "ni8": [
-        [{
-          "autoname": false
-          "id": 0
-          "name": "Level"
-          "section": "Master"
-          "vflag": false
-        }
-        {
-          "autoname": false
-          "id": 1
-          "name": "Tune"
-          "vflag": false
-        }
-        {
-          ...
-          ...
-          ...
-          "autoname": true
-          "vflag": false
-        }]
+      ni8: [
+        [
+          {
+            autoname: false
+            id: 0
+            name: "Level"
+            section: "Master"
+            vflag": false
+          }
+          {
+            autoname: false
+            id: 1
+            name: "Tune"
+            vflag: false
+          }
+          {
+            ...
+            ...
+            ...
+            autoname: true
+            vflag: false
+          }
+        ]
       ]
     .pipe gulp.dest 'dist/AnalogLab'
 ```
