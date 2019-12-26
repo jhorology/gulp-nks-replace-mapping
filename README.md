@@ -9,76 +9,51 @@ Gulp plugin for replacing the mapping chunk of NKSF file.
 
 ## Usage
 
-using template .nksf.
-```coffeescript
-replace = require 'gulp-nks-replace-mapping'
-
-gulp.task 'dist', ->
-  gulp.src ['src/Spire/**/*.nksf']
-    .pipe replace 'Spire template.nksf'
-    .pipe gulp.dest 'dist/Spire'
-```
-
-using object.
-```coffeescript
-replace = require 'gulp-nks-replace-mapping'
-
-gulp.task 'dist', ->
-  gulp.src ['src/AnalogLab/**/*.nksf']
-    .pipe replace
-      ni8: [
-        [
-          {
-            autoname: false
-            id: 0
-            name: "Level"
-            section: "Master"
-            vflag: false
-          }
-          {
-            autoname: false
-            id: 1
-            name: "Tune"
-            vflag: false
-          }
-          ...
-        ]
-        ...
-        [
-          ...
-          {
-            autoname: true
-            vflag: false
-          }
-        ]
-      ]
-    , type: 'OBJECT'
-    .pipe gulp.dest 'dist/AnalogLab'
-```
-
-per preset mapping.
-```coffeescript
-replace = require 'gulp-nks-replace-mapping'
-
-gulp.task 'dist', ->
-  gulp.src ['src/AnalogLab/presets/**/*.nksf']
-    .pipe replace (file, mapping) ->
-      "src/AnalogLab/mappings/#{file.relative[..-5]}json"
-    , type: 'JSON'
-    .pipe gulp.dest 'dist/AnalogLab'
-```
-
 print mapping.
-```coffeescript
-replace  = require 'gulp-nks-replace-mapping'
-beautify = require 'js-beautify'
+```javascript
+const replace = require('gulp-nks-replace-mapping'),
+      beautify = require('js-beautify')
 
-gulp.task 'print', ->
-  gulp.src ['src/**/*.nksf']
-    .pipe replace (file, mapping) ->
-      console.info beautify (JSON.stringify mapping), indent_size: 2
-      undefined
+function printMapping() {
+  return src('src/**/*.nksf')
+    .pipe(replace((file, mapping) => {
+      console.log(beautify(JSON.stringify(mapping), { indent_size: 2 }))
+      return undefined
+    }))
+}
 ```
+
+use exists template .nksf file as mapping
+```javascript
+const replace = require('gulp-nks-replace-mapping')
+      { src, dest } = require('gulp')
+
+function replaceMapping() {
+  return src('src/Spier/**/*.nksf')
+    .pipe(replace('Spire template.nksf', { type: 'NKSF' }))
+    .pipe(dest('dist/Spire'))
+}
+```
+
+
+edit original mapping
+```javascript
+const replace = require('gulp-nks-replace-mapping')
+      { src, dest } = require('gulp')
+
+function swapPage1and2() {
+  return src('src/**/*.nksf')
+    .pipe(replace((file, mapping) => {
+      const page1 = mapping.ni8[0]
+      const page2 = mapping.ni8[1]
+      mapping.ni8[0] = page2
+      mapping.ni8[1] = page1
+      return mapping
+    }, { type: 'OBJECT' }))
+    .pipe(dest('dist'))
+}
+```
+
 ## API
 
 ### replace(data [,options])
