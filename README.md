@@ -12,6 +12,7 @@ Gulp plugin for replacing the mapping chunk of NKSF file.
 print mapping.
 ```javascript
 const replace = require('gulp-nks-replace-mapping'),
+      { src, dest } = require('gulp'),
       beautify = require('js-beautify')
 
 function printMapping() {
