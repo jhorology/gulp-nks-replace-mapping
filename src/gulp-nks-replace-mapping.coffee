@@ -1,7 +1,7 @@
 fs           = require 'fs'
 assert       = require 'assert'
 through      = require 'through2'
-gutil        = require 'gulp-util'
+PluginError  = require 'plugin-error'
 _            = require 'underscore'
 reader       = require 'riff-reader'
 msgpack      = require 'msgpack-lite'
@@ -22,24 +22,27 @@ module.exports = (data, opts) ->
 
   through.obj (file, enc, cb) ->
     replaced = off
-    replace = (err, src) =>
+    replace = (err, userData) =>
       if replaced
-        @emit 'error', new gutil.PluginError PLUGIN_NAME, 'duplicate callback'
+        @emit 'error', new PluginError PLUGIN_NAME, 'duplicate callback'
         return
       replaced = on
       if err
-        @emit 'error', new gutil.PluginError PLUGIN_NAME, err
-        return cb()
+        @emit 'error', new PluginError PLUGIN_NAME, err
+        cb()
+        retunn
       # just skip
-      unless src
-        return cb()
+      unless userData
+        cb()
+        return
       try
-        chunk =  _createMappingChunk opts, src
+        chunk =  _createMappingChunk opts, userData
         _replaceMappingChunk file, chunk
         @push file
       catch error
-        @emit 'error', new gutil.PluginError PLUGIN_NAME, error
+        @emit 'error', new PluginError PLUGIN_NAME, error
       cb()
+      return
 
     unless file
       replace 'Files can not be empty'
@@ -51,12 +54,12 @@ module.exports = (data, opts) ->
       
     if _.isFunction data
       try
-        mapping = _deserializeMapping file
-        src = data.call @, file, mapping, replace
+        originalMapping = _deserializeMapping file
+        userData = data.call @, file, originalMapping, replace
       catch error
         replace error
       if data.length <= 2
-        replace undefined, src
+        replace undefined, userData
     else
       replace undefined, data
 
@@ -78,36 +81,36 @@ _deserializeMapping = (file) ->
 
 #
 # create new NICA chunk
-_createMappingChunk = (opts, src) ->
+_createMappingChunk = (opts, userData) ->
   switch
     when opts.type is 'NKSF'
       chunk = undefined
-      reader(src, $.formType).readSync (id, data) ->
+      reader(userData, $.formType).readSync (id, data) ->
         assert.ok (id is $.chunkId), "Unexpected chunk id. id:#{id}"
         assert.ok (_.isUndefined chunk), "Duplicate mapping chunk."
         ver = data.readUInt32LE 0
         assert.ok ver is $.chunkVer, "Unsupported format version. version:#{ver}"
         chunk = data
       , [$.chunkId]
-      assert.ok chunk, "#{$.chunkId} chunk is not contained in file. file:#{src}"
+      assert.ok chunk, "#{$.chunkId} chunk is not contained in file. file:#{userData}"
       chunk
     when opts.type is 'JSON'
-      obj = JSON.parse fs.readFileSync src, 'utf8'
+      obj = JSON.parse fs.readFileSync userData, 'utf8'
       # TODO: need validation here
       # chunk format version
-      buffer = new Buffer 4
+      buffer = Buffer.alloc 4
       buffer.writeUInt32LE $.chunkVer
       # seriaize metadata to buffer
       Buffer.concat [buffer, msgpack.encode obj]
     when opts.type is 'OBJECT'
       # TODO: need validation here
       # chunk format version
-      buffer = new Buffer 4
+      buffer = Buffer.alloc 4
       buffer.writeUInt32LE $.chunkVer
       # seriaize metadata to buffer
-      Buffer.concat [buffer, msgpack.encode src]
+      Buffer.concat [buffer, msgpack.encode userData]
     else
-      assert.ok false, "Unknown option type value. type: #{opts.mapping_src}"
+      assert.ok false, "Unknown option type value. type: #{opts.type}"
 
 #
 # replace NICA chunk
